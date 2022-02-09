@@ -33,38 +33,41 @@ class SongCubit extends Cubit<SongState> {
   bool get isRepeating => repeating;
 
   int currentIndex = 0;
-  int get getIndex => currentIndex;
-  set setIndex(int index) => currentIndex = index;
 
   AssetsAudioPlayer get audioInstance => _audioPlayer;
 
+  late Audio _audio;
+
   Future<void> setSong(SongModel song) async {
+    _audio = Audio.file(
+      song.uri!,
+      metas: Metas(
+        title: song.title,
+        artist: song.artist,
+        album: song.album,
+      ),
+    );
     emit(SongChanged(song));
     _audioPlayer.open(
-      Audio.file(
-        song.uri!,
-        metas: Metas(
-          title: song.title,
-          artist: song.artist,
-          album: song.album,
-        ),
-      ),
+      _audio,
       showNotification: true,
       notificationSettings: NotificationSettings(
         customNextAction: (player) {
-          if(currentIndex + 1 != allSongs.length) {
+          if (currentIndex + 1 != allSongs.length) {
             currentIndex++;
             setSong(allSongs[currentIndex]);
           } else {
             setSong(allSongs[0]);
+            currentIndex = 0;
           }
         },
         customPrevAction: (player) {
-          if(currentIndex - 1 > 0 ) {
+          if (currentIndex - 1 > 0) {
             currentIndex--;
             setSong(allSongs[currentIndex]);
           } else {
             setSong(allSongs[0]);
+            currentIndex = 0;
           }
         },
         seekBarEnabled: true,
@@ -81,6 +84,7 @@ class SongCubit extends Cubit<SongState> {
     await _audioPlayer.pause().then((value) {
       songState = false;
       emit(const SongPaused());
+      emit(CurrentSong(currentIndex));
       log("Pause " + state.toString());
     });
   }
@@ -89,6 +93,7 @@ class SongCubit extends Cubit<SongState> {
     await _audioPlayer.play().then((value) {
       songState = true;
       emit(SongResumed(song));
+      emit(CurrentSong(currentIndex));
       log("Resume " + state.toString());
     });
   }

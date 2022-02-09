@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:minimal_player/utils/text_styles.dart';
 
 class CustomSlider extends StatefulWidget {
@@ -8,11 +9,12 @@ class CustomSlider extends StatefulWidget {
   final Function(Duration) seekTo;
 
   const CustomSlider({
+    Key? key,
     required this.currentPosition,
     required this.duration,
-    required this.seekTo,
     required this.index,
-  });
+    required this.seekTo,
+  }) : super(key: key);
 
   @override
   _CustomSliderState createState() => _CustomSliderState();

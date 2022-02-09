@@ -82,14 +82,9 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class BlocSongBuilder extends StatefulWidget {
+class BlocSongBuilder extends StatelessWidget {
   const BlocSongBuilder({Key? key}) : super(key: key);
 
-  @override
-  State<BlocSongBuilder> createState() => _BlocSongBuilderState();
-}
-
-class _BlocSongBuilderState extends State<BlocSongBuilder> {
   @override
   Widget build(BuildContext context) {
     var _songCubit = BlocProvider.of<SongCubit>(context);
@@ -104,9 +99,8 @@ class _BlocSongBuilderState extends State<BlocSongBuilder> {
               itemBuilder: (context, index) {
                 return ListTile(
                   onTap: () {
+                    _songCubit.currentIndex = index;
                     _songCubit.setSong(state.songs[index]);
-                    _songCubit.setIndex = index;
-                    setState(() {});
                   },
                   title: SongTitleText(
                     title: state.songs[index].title,
@@ -144,13 +138,14 @@ class SongTitleText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var _songCubit = BlocProvider.of<SongCubit>(context);
     return BlocBuilder<SongCubit, SongState>(
       builder: (context, state) {
         if (state is CurrentSong) {
           return Text(
             title,
             overflow: TextOverflow.ellipsis,
-            style: state.index == index
+            style: _songCubit.currentIndex == index
                 ? TextStyles.primaryRegular.copyWith(color: Colors.red)
                 : TextStyles.primaryRegular,
           );
@@ -210,18 +205,25 @@ class SongProgress extends StatelessWidget {
           child: PlayerBuilder.realtimePlayingInfos(
             player: _songCubit.audioInstance,
             builder: (context, infos) {
-              if (infos.currentPosition.compareTo(infos.duration) == 0) {
-                _songCubit
-                    .setSong(_songCubit.allSongs[_songCubit.getIndex + 1]);
-              } else {
+              if (infos.currentPosition < infos.duration) {
                 return CustomSlider(
                   currentPosition: infos.currentPosition,
                   duration: infos.duration,
-                  index: _songCubit.getIndex,
+                  index: _songCubit.currentIndex,
                   seekTo: (duration) {
                     _songCubit.audioInstance.seek(duration);
                   },
                 );
+              } else {
+                if (_songCubit.currentIndex >= _songCubit.allSongs.length - 1) {
+                  _songCubit.currentIndex = 0;
+                  _songCubit
+                      .setSong(_songCubit.allSongs[_songCubit.currentIndex]);
+                } else {
+                  _songCubit.currentIndex++;
+                  _songCubit
+                      .setSong(_songCubit.allSongs[_songCubit.currentIndex]);
+                }
               }
               return Container();
             },
@@ -266,7 +268,7 @@ class PlayPauseButton extends StatelessWidget {
               isPlaying
                   ? _songCubit.pauseSong()
                   : _songCubit
-                      .resumeSong(_songCubit.allSongs[_songCubit.getIndex]);
+                      .resumeSong(_songCubit.allSongs[_songCubit.currentIndex]);
             },
           );
         },
@@ -329,12 +331,12 @@ class NextButton extends StatelessWidget {
       iconSize: 32.0,
       color: const Color.fromRGBO(255, 255, 255, 1),
       onPressed: () {
-        if (_songCubit.getIndex == _songCubit.allSongs.length - 1) {
-          _songCubit.setIndex = 0;
-          _songCubit.setSong(_songCubit.allSongs[_songCubit.getIndex]);
+        if (_songCubit.currentIndex >= _songCubit.allSongs.length - 1) {
+          _songCubit.currentIndex = 0;
+          _songCubit.setSong(_songCubit.allSongs[_songCubit.currentIndex]);
         } else {
-          _songCubit.setSong(_songCubit.allSongs[_songCubit.getIndex + 1]);
-          _songCubit.setIndex = _songCubit.getIndex + 1;
+          _songCubit.currentIndex++;
+          _songCubit.setSong(_songCubit.allSongs[_songCubit.currentIndex]);
         }
       },
     );
@@ -354,11 +356,12 @@ class PreviousButton extends StatelessWidget {
       iconSize: 32.0,
       color: Colors.white,
       onPressed: () {
-        if (_songCubit.getIndex == 0) {
-          _songCubit.setSong(_songCubit.allSongs[_songCubit.getIndex]);
+        if (_songCubit.currentIndex <= 0) {
+          _songCubit.currentIndex = 0;
+          _songCubit.setSong(_songCubit.allSongs[_songCubit.currentIndex]);
         } else {
-          _songCubit.setSong(_songCubit.allSongs[_songCubit.getIndex - 1]);
-          _songCubit.setIndex = _songCubit.getIndex - 1;
+          _songCubit.currentIndex--;
+          _songCubit.setSong(_songCubit.allSongs[_songCubit.currentIndex]);
         }
       },
     );
