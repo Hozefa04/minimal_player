@@ -21,4 +21,10 @@ class TextStyles {
     color: AppColors.greyColor,
   );
 
+  static TextStyle currentPlaying = GoogleFonts.ubuntu(
+    fontSize: 16.0,
+    fontWeight: FontWeight.bold,
+    color: AppColors.currentSongColor,
+  );
+
 }

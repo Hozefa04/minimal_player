@@ -47,7 +47,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     context.read<SongCubit>().getSongs();
-    log("rebuild");
 
     return Scaffold(
       backgroundColor: AppColors.primaryColor,
@@ -129,8 +128,7 @@ class SongTitleText extends StatelessWidget {
             title,
             overflow: TextOverflow.ellipsis,
             style: _songCubit.currentIndex == index
-                ? TextStyles.primaryRegular
-                    .copyWith(color: AppColors.currentSongColor)
+                ? TextStyles.currentPlaying
                 : TextStyles.primaryRegular,
           );
         }
@@ -189,7 +187,7 @@ class SongProgress extends StatelessWidget {
           child: PlayerBuilder.realtimePlayingInfos(
             player: _songCubit.audioInstance,
             builder: (context, infos) {
-              if (infos.currentPosition < infos.duration) {
+              if (infos.currentPosition.inMicroseconds <= infos.duration.inMicroseconds) {
                 return CustomSlider(
                   currentPosition: infos.currentPosition,
                   duration: infos.duration,

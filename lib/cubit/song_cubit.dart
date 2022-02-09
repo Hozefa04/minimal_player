@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:minimal_player/utils/app_methods.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 part 'song_state.dart';
@@ -34,17 +38,24 @@ class SongCubit extends Cubit<SongState> {
 
   int currentIndex = 0;
 
+  bool isPaused = false;
+
   AssetsAudioPlayer get audioInstance => _audioPlayer;
 
   late Audio _audio;
 
   Future<void> setSong(SongModel song) async {
+
+    //Uint8List? imageData = await _audioQuery.queryArtwork(song.id, ArtworkType.AUDIO);
+    //File.fromRawPath(imageData!).path
+
     _audio = Audio.file(
       song.uri!,
       metas: Metas(
         title: song.title,
         artist: song.artist,
         album: song.album,
+        image: const MetasImage.asset("assets/music.png"),
       ),
     );
     emit(SongChanged(song));
@@ -52,6 +63,13 @@ class SongCubit extends Cubit<SongState> {
       _audio,
       showNotification: true,
       notificationSettings: NotificationSettings(
+        customPlayPauseAction: (player) {
+          if(isPaused) {
+            resumeSong(song);
+          } else {
+            pauseSong();
+          }
+        },
         customNextAction: (player) {
           if (currentIndex + 1 != allSongs.length) {
             currentIndex++;
@@ -85,7 +103,7 @@ class SongCubit extends Cubit<SongState> {
       songState = false;
       emit(const SongPaused());
       emit(CurrentSong(currentIndex));
-      log("Pause " + state.toString());
+      isPaused = true;
     });
   }
 
@@ -94,7 +112,7 @@ class SongCubit extends Cubit<SongState> {
       songState = true;
       emit(SongResumed(song));
       emit(CurrentSong(currentIndex));
-      log("Resume " + state.toString());
+      isPaused = false;
     });
   }
 
