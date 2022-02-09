@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:minimal_player/cubit/song_cubit.dart';
 import 'package:minimal_player/utils/app_colors.dart';
+import 'package:minimal_player/utils/app_strings.dart';
 import 'package:minimal_player/utils/text_styles.dart';
+import 'package:minimal_player/widgets/custom_app_bar.dart';
+import 'package:minimal_player/widgets/custom_control_button.dart';
 import 'package:minimal_player/widgets/custom_slider.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
@@ -62,26 +65,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
-  const CustomAppBar({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      title: Text(
-        "Minimal Player",
-        style: TextStyles.primaryBold,
-      ),
-      centerTitle: true,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-    );
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-}
-
 class BlocSongBuilder extends StatelessWidget {
   const BlocSongBuilder({Key? key}) : super(key: key);
 
@@ -107,7 +90,7 @@ class BlocSongBuilder extends StatelessWidget {
                     index: index,
                   ),
                   subtitle: Text(
-                    state.songs[index].artist ?? "No Artist",
+                    state.songs[index].artist ?? AppStrings.noArtist,
                     style: TextStyles.artistText,
                   ),
                   leading: QueryArtworkWidget(
@@ -146,7 +129,8 @@ class SongTitleText extends StatelessWidget {
             title,
             overflow: TextOverflow.ellipsis,
             style: _songCubit.currentIndex == index
-                ? TextStyles.primaryRegular.copyWith(color: Colors.red)
+                ? TextStyles.primaryRegular
+                    .copyWith(color: AppColors.currentSongColor)
                 : TextStyles.primaryRegular,
           );
         }
@@ -277,22 +261,6 @@ class PlayPauseButton extends StatelessWidget {
   }
 }
 
-class ShuffleButton extends StatelessWidget {
-  const ShuffleButton({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.shuffle_rounded),
-      iconSize: 24.0,
-      color: Colors.grey,
-      onPressed: () {},
-    );
-  }
-}
-
 class RepeatButton extends StatefulWidget {
   const RepeatButton({
     Key? key,
@@ -306,11 +274,10 @@ class _RepeatButtonState extends State<RepeatButton> {
   @override
   Widget build(BuildContext context) {
     var _songCubit = BlocProvider.of<SongCubit>(context);
-    return IconButton(
-      icon: const Icon(Icons.repeat_rounded),
-      iconSize: 24.0,
+    return CustomControlButton(
+      icon: Icons.repeat_one_rounded,
       color: _songCubit.isRepeating ? Colors.white : Colors.grey,
-      onPressed: () {
+      onPressed:() {
         _songCubit.toggleRepeat();
         setState(() {});
       },
@@ -326,10 +293,8 @@ class NextButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var _songCubit = BlocProvider.of<SongCubit>(context);
-    return IconButton(
-      icon: const Icon(Icons.skip_next_rounded),
-      iconSize: 32.0,
-      color: const Color.fromRGBO(255, 255, 255, 1),
+    return CustomControlButton(
+      icon: Icons.skip_next_rounded,
       onPressed: () {
         if (_songCubit.currentIndex >= _songCubit.allSongs.length - 1) {
           _songCubit.currentIndex = 0;
@@ -351,10 +316,9 @@ class PreviousButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var _songCubit = BlocProvider.of<SongCubit>(context);
-    return IconButton(
-      icon: const Icon(Icons.skip_previous_rounded),
-      iconSize: 32.0,
-      color: Colors.white,
+
+    return CustomControlButton(
+      icon: Icons.skip_previous_rounded,
       onPressed: () {
         if (_songCubit.currentIndex <= 0) {
           _songCubit.currentIndex = 0;

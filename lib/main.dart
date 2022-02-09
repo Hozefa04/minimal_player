@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:minimal_player/cubit/song_cubit.dart';
 import 'package:minimal_player/screens/home_page.dart';
+import 'package:minimal_player/utils/app_strings.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Minimal Player',
+        title: AppStrings.appTitle,
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),

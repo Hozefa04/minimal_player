@@ -108,8 +108,6 @@ class SongCubit extends Cubit<SongState> {
     log(_audioPlayer.currentLoopMode.toString());
   }
 
-  void autoNextSong() {}
-
   @override
   Future<void> close() {
     _audioPlayer.dispose();
