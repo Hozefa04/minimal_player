@@ -146,17 +146,13 @@ class SongTitleText extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SongCubit, SongState>(
       builder: (context, state) {
-        var _songCubit = BlocProvider.of<SongCubit>(context);
-
-        if (state is SongChanged) {
+        if (state is CurrentSong) {
           return Text(
             title,
             overflow: TextOverflow.ellipsis,
-            style: _songCubit.getIndex != index
-                ? TextStyles.primaryRegular
-                : TextStyles.primaryRegular.copyWith(
-                    color: Colors.red,
-                  ),
+            style: state.index == index
+                ? TextStyles.primaryRegular.copyWith(color: Colors.red)
+                : TextStyles.primaryRegular,
           );
         }
         return Text(

@@ -53,7 +53,7 @@ class SongCubit extends Cubit<SongState> {
       notificationSettings: NotificationSettings(
         customNextAction: (player) {
           if(currentIndex + 1 != allSongs.length) {
-            setIndex = getIndex + 1;
+            currentIndex++;
             setSong(allSongs[currentIndex]);
           } else {
             setSong(allSongs[0]);
@@ -61,7 +61,7 @@ class SongCubit extends Cubit<SongState> {
         },
         customPrevAction: (player) {
           if(currentIndex - 1 > 0 ) {
-            setIndex = getIndex - 1;
+            currentIndex--;
             setSong(allSongs[currentIndex]);
           } else {
             setSong(allSongs[0]);
@@ -74,7 +74,7 @@ class SongCubit extends Cubit<SongState> {
     _audioPlayer.play();
     songState = true;
     emit(SongResumed(song));
-    emit(CurrentSong(getIndex));
+    emit(CurrentSong(currentIndex));
   }
 
   void pauseSong() async {
